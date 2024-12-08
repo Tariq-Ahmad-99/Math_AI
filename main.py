@@ -1,7 +1,13 @@
 import cvzone
 import numpy as np
 import cv2
+import google.generativeai as genai
 from cvzone.HandTrackingModule import HandDetector
+from PIL import Image
+
+
+genai.configure(api_key="AIzaSyCfdwHSj2qZu1EyUpS9xTpG0cjW5WR8byI")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Initialize the webcam to capture video
 # The '2' indicates the third camera connected to your computer; '0' would usually refer to the built-in camera
@@ -40,9 +46,16 @@ def draw(info, prev_pos, canvas):
         current_pos = lmList[8][0:2]
         if prev_pos is None: prev_pos = current_pos
         cv2.line(canvas, current_pos, prev_pos, color=(255,0,255), thickness=6)
-
+    elif fingers == [1, 0, 0, 0, 0]:
+        canvas = np.zeros_like(img)
 
     return current_pos, canvas
+
+def sendToAI(model, canvas, fingers):
+    if fingers == [1, 1, 1, 1, 0]:
+        PIL_image = Image.fromarray(canvas)
+        response = model.generate_content(["Solve this math problem", PIL_image])
+        print(response.text)
 
 prev_pos = None
 canvas = None
@@ -66,12 +79,13 @@ while True:
         fingers, lmList = info
         print(fingers)
         prev_pos, canvas = draw(info, prev_pos, canvas)
+        sendToAI(model, canvas, fingers)
 
     image_combines = cv2.addWeighted(img, 0.7, canvas, 0.3, 0)
 
     # Display the image in a window
     # cv2.imshow("Image", img)
-    # cv2.imshow("Canvas", canvas)
+    cv2.imshow("Canvas", canvas)
     cv2.imshow("image_combines", image_combines)
 
     # Keep the window open and update it for each frame; wait for 1 millisecond between frames
