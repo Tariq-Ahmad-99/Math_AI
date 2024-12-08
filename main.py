@@ -46,7 +46,7 @@ def draw(info, prev_pos, canvas):
         current_pos = lmList[8][0:2]
         if prev_pos is None: prev_pos = current_pos
         cv2.line(canvas, current_pos, prev_pos, color=(255,0,255), thickness=6)
-    elif fingers == [1, 0, 0, 0, 0]:
+    elif fingers == [1, 0, 0, 0, 1]:
         canvas = np.zeros_like(img)
 
     return current_pos, canvas
