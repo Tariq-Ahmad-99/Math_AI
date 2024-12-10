@@ -7,8 +7,22 @@ from api import api_no
 from PIL import Image
 import streamlit as st
 
+st.set_page_config(layout="wide")
+st.image('background.jpg')
 
-genai.configure(api_key = api_no )
+col1, col2 = st.columns([3,2])
+
+with col1:
+    run = st.checkbox('Run', value=True)
+    FRAME_WINDOW = st.image([])
+
+with col2:
+    output_text_area = st.title("Answer")
+    output_text_area = st.subheader("")
+
+
+
+genai.configure(api_key = api_no )  #change this to your api_key
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Initialize the webcam to capture video
@@ -22,8 +36,6 @@ detector = HandDetector(staticMode=False, maxHands=1, modelComplexity=1, detecti
 
 def getHandInfo(img):
     # Find hands in the current frame
-    # The 'draw' parameter draws landmarks and hand outlines on the image if set to True
-    # The 'flipType' parameter flips the image, making it easier for some detections
     hands, img = detector.findHands(img, draw=False, flipType=True)
 
     # Check if any hands are detected
@@ -56,11 +68,12 @@ def sendToAI(model, canvas, fingers):
     if fingers == [1, 1, 1, 1, 0]:
         PIL_image = Image.fromarray(canvas)
         response = model.generate_content(["Solve this math problem", PIL_image])
-        print(response.text)
+        return response.text
 
 prev_pos = None
 canvas = None
-image_combines = None
+image_combined = None
+output_text = ""
 
 # Continuously get frames from the webcam
 while True:
@@ -76,16 +89,14 @@ while True:
     info = getHandInfo(img)
     if info:
         fingers, lmList = info
-        print(fingers)
         prev_pos, canvas = draw(info, prev_pos, canvas)
-        sendToAI(model, canvas, fingers)
+        output_text = sendToAI(model, canvas, fingers)
 
-    image_combines = cv2.addWeighted(img, 0.7, canvas, 0.3, 0)
+    image_combined = cv2.addWeighted(img, 0.7, canvas, 0.3, 0)
+    FRAME_WINDOW.image(image_combined, channels="BGR")
 
-    # Display the image in a window
-    # cv2.imshow("Image", img)
-    cv2.imshow("Canvas", canvas)
-    cv2.imshow("image_combines", image_combines)
+    if output_text:
+        output_text_area.text(output_text)
 
     # Keep the window open and update it for each frame; wait for 1 millisecond between frames
     cv2.waitKey(1)
