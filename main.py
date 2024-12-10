@@ -3,10 +3,12 @@ import numpy as np
 import cv2
 import google.generativeai as genai
 from cvzone.HandTrackingModule import HandDetector
+from api import api_no
 from PIL import Image
+import streamlit as st
 
 
-genai.configure(api_key="AIzaSyCfdwHSj2qZu1EyUpS9xTpG0cjW5WR8byI")
+genai.configure(api_key = api_no )
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Initialize the webcam to capture video
@@ -17,7 +19,6 @@ cap.set(4,720)
 
 # Initialize the HandDetector class with the given parameters
 detector = HandDetector(staticMode=False, maxHands=1, modelComplexity=1, detectionCon=0.7, minTrackCon=0.5)
-
 
 def getHandInfo(img):
     # Find hands in the current frame
@@ -71,8 +72,6 @@ while True:
     if canvas is None: 
         canvas = np.zeros_like(img)
 
-
-    
 
     info = getHandInfo(img)
     if info:
