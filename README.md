@@ -1,5 +1,7 @@
 # Math AI
 
+https://github.com/user-attachments/assets/d1def56c-b9e6-4ff0-95f8-d34ed26d2ea8
+
 ## Overview
 This project combines **real-time hand gesture recognition**, **AI interaction**, and **drawing capabilities** using Python. It allows users to draw on the screen using hand gestures detected via a webcam, clear the canvas with specific gestures, and interact with an AI model to solve math problems based on the drawings.
 
